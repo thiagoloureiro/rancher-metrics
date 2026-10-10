@@ -13,6 +13,27 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
+    appVersion: 0.1.5
+    created: "2026-10-10T18:41:09.504456207Z"
+    description: Shows AlertHawk node, application, and volume metrics in Rancher
+    digest: bea9a3eb05ca764a0de301621b9ec96a1f9fb1b8bca9517b66280ee8b77587f5
+    name: rancher-metrics
+    type: application
+    urls:
+    - assets/rancher-metrics/rancher-metrics-0.1.5.tgz
+    version: 0.1.5
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Cluster Metrics
+      catalog.cattle.io/kube-version: '>= 1.25.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
     appVersion: 0.1.4
     created: "2026-10-10T18:35:30.024122413Z"
     description: Shows AlertHawk node, application, and volume metrics in Rancher
@@ -85,4 +106,4 @@ entries:
     urls:
     - assets/rancher-metrics/rancher-metrics-0.1.1.tgz
     version: 0.1.1
-generated: "2026-10-10T18:35:30.023842423Z"
+generated: "2026-10-10T18:41:09.504090371Z"
