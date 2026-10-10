@@ -647,6 +647,10 @@ export function rollupApplications(samples: PodSample[], resources: WorkloadReso
   }).sort((left, right) => `${ left.namespace }/${ left.kind }/${ left.name }`.localeCompare(`${ right.namespace }/${ right.kind }/${ right.name }`));
 }
 
+export function volumeForClaim(rows: VolumeRow[], namespace: string, name: string): VolumeRow | undefined {
+  return rows.find((row) => row.namespace === namespace && row.name === name);
+}
+
 export function rollupVolumes(samples: VolumeSample[]): VolumeRow[] {
   const groups = new Map<string, VolumeSample[]>();
 

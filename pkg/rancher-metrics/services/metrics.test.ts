@@ -12,6 +12,7 @@ import {
   rollupApplications,
   rollupVolumes,
   showsClusterColumn,
+  volumeForClaim,
   usagePercent,
   usageTone,
   validateBaseUrl,
@@ -172,6 +173,8 @@ assert.equal(volumes.length, 1);
 assert.equal(volumes[0].usedBytes, 600);
 assert.deepEqual(volumes[0].pods, ['db-0', 'db-1']);
 assert.equal(volumes[0].usedSeries.length, 2);
+assert.equal(volumeForClaim(volumes, 'shop', 'data')?.usedBytes, 600);
+assert.equal(volumeForClaim(volumes, 'shop', 'other'), undefined);
 
 assert.equal(formatCpu(0.25), '250m');
 assert.equal(formatCpu(1.5), '1.5');

@@ -376,3 +376,11 @@
 .metrics-form code {
   font-size: 12px;
 }
+
+.metrics-pvc-used {
+  min-width: 168px;
+}
+
+.metrics-pvc-used .metrics-usage {
+  min-width: 0;
+}
