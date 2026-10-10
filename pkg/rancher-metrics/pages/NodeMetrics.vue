@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import MetricsFrame from '../components/MetricsFrame.vue';
-import Sparkline from '../components/Sparkline.vue';
+import UsageChart from '../components/UsageChart.vue';
 import UsageMeter from '../components/UsageMeter.vue';
 import { isConfigured, useConnection, type MetricsConnection } from '../services/connection-settings';
 import { fetchNodeMetrics } from '../services/metrics-client';
@@ -19,7 +19,7 @@ type SortDir = 'asc' | 'desc';
 export default defineComponent({
   name: 'NodeMetrics',
 
-  components: { MetricsFrame, Sparkline, UsageMeter },
+  components: { MetricsFrame, UsageChart, UsageMeter },
 
   data() {
     return {
@@ -359,15 +359,17 @@ export default defineComponent({
                   </div>
                 </dl>
                 <div class="metrics-detail-grid">
-                  <Sparkline
+                  <UsageChart
                     label="CPU"
                     mode="cpu"
                     :points="row.cpuSeries"
+                    :capacity="row.cpuCapacityCores"
                   />
-                  <Sparkline
+                  <UsageChart
                     label="Memory"
                     mode="bytes"
                     :points="row.memorySeries"
+                    :capacity="row.memoryCapacityBytes"
                   />
                 </div>
               </div>

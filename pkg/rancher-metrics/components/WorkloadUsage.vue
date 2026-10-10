@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-import Sparkline from './Sparkline.vue';
+import UsageChart from './UsageChart.vue';
 import UsageMeter from './UsageMeter.vue';
 import { loadApplicationUsage } from '../services/application-usage';
 import { isConfigured, setMinutes, useConnection } from '../services/connection-settings';
@@ -21,7 +21,7 @@ const WORKLOAD_KINDS = new Set(['Deployment', 'StatefulSet', 'DaemonSet']);
 export default defineComponent({
   name: 'WorkloadUsage',
 
-  components: { Sparkline, UsageMeter },
+  components: { UsageChart, UsageMeter },
 
   props: {
     resource: {
@@ -270,15 +270,19 @@ export default defineComponent({
         </p>
 
         <div class="metrics-detail-grid">
-          <Sparkline
+          <UsageChart
             label="CPU"
             mode="cpu"
             :points="application.cpuSeries"
+            :capacity="application.cpuLimitCores"
+            capacity-label="Limit"
           />
-          <Sparkline
+          <UsageChart
             label="Memory"
             mode="bytes"
             :points="application.memorySeries"
+            :capacity="application.memoryLimitBytes"
+            capacity-label="Limit"
           />
         </div>
 

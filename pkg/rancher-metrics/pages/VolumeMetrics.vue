@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import MetricsFrame from '../components/MetricsFrame.vue';
-import Sparkline from '../components/Sparkline.vue';
+import UsageChart from '../components/UsageChart.vue';
 import UsageMeter from '../components/UsageMeter.vue';
 import { isConfigured, useConnection, type MetricsConnection } from '../services/connection-settings';
 import { fetchVolumeMetrics } from '../services/metrics-client';
@@ -24,7 +24,7 @@ type SortDir = 'asc' | 'desc';
 export default defineComponent({
   name: 'VolumeMetrics',
 
-  components: { MetricsFrame, Sparkline, UsageMeter },
+  components: { MetricsFrame, UsageChart, UsageMeter },
 
   data() {
     return {
@@ -366,10 +366,11 @@ export default defineComponent({
                     <dd>{{ row.pods.join(', ') || '—' }}</dd>
                   </div>
                 </dl>
-                <Sparkline
+                <UsageChart
                   label="Used"
                   mode="bytes"
                   :points="row.usedSeries"
+                  :capacity="row.capacityBytes"
                 />
               </div>
             </td>

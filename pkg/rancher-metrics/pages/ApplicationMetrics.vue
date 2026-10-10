@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import MetricsFrame from '../components/MetricsFrame.vue';
-import Sparkline from '../components/Sparkline.vue';
+import UsageChart from '../components/UsageChart.vue';
 import UsageMeter from '../components/UsageMeter.vue';
 import { isConfigured, useConnection, type MetricsConnection } from '../services/connection-settings';
 import { fetchPodMetrics } from '../services/metrics-client';
@@ -35,7 +35,7 @@ const KIND_LABELS: Record<string, string> = {
 export default defineComponent({
   name: 'ApplicationMetrics',
 
-  components: { MetricsFrame, Sparkline, UsageMeter },
+  components: { MetricsFrame, UsageChart, UsageMeter },
 
   data() {
     return {
@@ -456,15 +456,19 @@ export default defineComponent({
             <td :colspan="columnCount">
               <div class="metrics-detail">
                 <div class="metrics-detail-grid">
-                  <Sparkline
+                  <UsageChart
                     label="CPU"
                     mode="cpu"
                     :points="row.cpuSeries"
+                    :capacity="row.cpuLimitCores"
+                    capacity-label="Limit"
                   />
-                  <Sparkline
+                  <UsageChart
                     label="Memory"
                     mode="bytes"
                     :points="row.memorySeries"
+                    :capacity="row.memoryLimitBytes"
+                    capacity-label="Limit"
                   />
                 </div>
                 <table class="metrics-table metrics-nested">

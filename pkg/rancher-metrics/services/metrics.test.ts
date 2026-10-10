@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { buildUsageChart, chartDomain, downsampleSeries, niceCeiling } from './chart.ts';
 import {
   apiRoot,
   deploymentNameFromReplicaSet,
@@ -201,5 +202,31 @@ assert.equal(deploymentNameFromReplicaSet('web-7f8a9b0c'), 'web');
 assert.equal(deploymentNameFromReplicaSet('web'), '');
 assert.equal(showsClusterColumn(['prod', 'prod']), false);
 assert.equal(showsClusterColumn(['prod', 'dev']), true);
+
+assert.equal(niceCeiling(0.3), 0.5);
+assert.equal(niceCeiling(1.2), 2);
+assert.equal(niceCeiling(90), 100);
+assert.equal(chartDomain([1, 3], 8), 10);
+
+const wave = Array.from({ length: 400 }, (_, index) => ({
+  time:  1_700_000_000_000 + index * 60_000,
+  value: index === 40 ? 50 : Math.sin(index / 12),
+}));
+const reduced = downsampleSeries(wave, 40);
+
+assert.equal(reduced.length, 40);
+assert.equal(reduced[0].time, wave[0].time);
+assert.equal(reduced[reduced.length - 1].time, wave[wave.length - 1].time);
+assert.ok(reduced.some((point) => point.value === 50));
+
+const model = buildUsageChart([
+  { time: 1_000, value: 0 },
+  { time: 2_000, value: 5 },
+], 10, (value) => String(value));
+
+assert.ok(model);
+assert.equal(model?.domain, 10);
+assert.equal(model?.samples[0].y, model?.bottom);
+assert.ok((model?.capacityY || 0) < (model?.samples[1].y || 0));
 
 console.log('metrics tests passed');
