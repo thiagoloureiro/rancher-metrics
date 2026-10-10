@@ -651,6 +651,23 @@ export function volumeForClaim(rows: VolumeRow[], namespace: string, name: strin
   return rows.find((row) => row.namespace === namespace && row.name === name);
 }
 
+export function applicationForWorkload(
+  rows: AppRow[],
+  namespace: string,
+  kind: string,
+  name: string,
+  clusterName = '',
+): AppRow | undefined {
+  const wanted = canonicalKind(kind);
+  const matches = rows.filter((row) => row.namespace === namespace && row.kind === wanted && row.name === name);
+
+  if (clusterName) {
+    return matches.find((row) => row.clusterName === clusterName) || matches[0];
+  }
+
+  return matches[0];
+}
+
 export function rollupVolumes(samples: VolumeSample[]): VolumeRow[] {
   const groups = new Map<string, VolumeSample[]>();
 

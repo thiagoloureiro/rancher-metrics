@@ -377,6 +377,25 @@
   font-size: 12px;
 }
 
+.metrics-workload {
+  display: grid;
+  gap: 16px;
+}
+
+.metrics-workload-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.metrics-workload-meters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 320px));
+  gap: 16px;
+}
+
 .metrics-pvc-used {
   min-width: 168px;
 }

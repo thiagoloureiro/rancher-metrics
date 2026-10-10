@@ -1,9 +1,10 @@
 import { importTypes } from '@rancher/auto-import';
-import { IPlugin, TableColumnLocation } from '@shell/core/types';
+import { IPlugin, TabLocation, TableColumnLocation } from '@shell/core/types';
 import './assets/metrics.css';
 import extensionRouting from './routing/extension-routing';
 
 const PVC_RESOURCE = 'persistentvolumeclaim';
+const WORKLOAD_RESOURCES = ['apps.deployment', 'apps.statefulset', 'apps.daemonset'];
 
 export default function(plugin: IPlugin): void {
   importTypes(plugin);
@@ -12,6 +13,17 @@ export default function(plugin: IPlugin): void {
 
   plugin.addProduct(require('./product'));
   plugin.addRoutes(extensionRouting);
+
+  plugin.addTab(
+    TabLocation.RESOURCE_DETAIL,
+    { resource: WORKLOAD_RESOURCES },
+    {
+      name:      'alerthawk-usage',
+      label:     'Usage',
+      weight:    4,
+      component: () => import('./components/WorkloadUsage.vue'),
+    }
+  );
 
   plugin.addTableColumn(
     TableColumnLocation.RESOURCE,
