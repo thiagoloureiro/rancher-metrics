@@ -1,7 +1,7 @@
 {
   "name": "rancher-metrics",
   "description": "Shows AlertHawk node, application, and volume metrics in Rancher",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": false,
   "rancher": {
     "annotations": {

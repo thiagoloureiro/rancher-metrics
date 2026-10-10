@@ -135,6 +135,7 @@ export default defineComponent({
   },
 
   methods: {
+    formatBytes,
     formatTimestamp,
 
     async load() {
