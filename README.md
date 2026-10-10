@@ -19,19 +19,10 @@ The pages follow the namespace filter already selected in Explorer. Node metrics
 
 ## AlertHawk API key
 
-The extension calls the metrics read API with an `X-Api-Key` header. On the AlertHawk Metrics API, configure one or more keys. Existing JWT and Azure AD sign-in still works. The key is accepted only on the read endpoints the extension uses (nodes, pods, PVCs, cluster names, and namespace names). Cleanup, log reads, and metric writes are unchanged.
-
-Named keys:
+The extension calls the metrics read API with an `X-Api-Key` header. On the AlertHawk Metrics API, set one key. Existing JWT and Azure AD sign-in still works. The key is accepted only on the read endpoints the extension uses (nodes, pods, PVCs, cluster names, and namespace names). Cleanup, log reads, and metric writes are unchanged.
 
 ```bash
-ApiKeys__Keys__0__Name=rancher-extension
-ApiKeys__Keys__0__Key=<long-random-key>
-```
-
-Or a comma-separated list:
-
-```bash
-API_KEYS=<long-random-key>
+ApiKey=<long-random-key>
 ```
 
 The browser calls AlertHawk directly, so the API must allow the Rancher origin. `Cors:Origins` defaults to `*`. Restrict it with:
