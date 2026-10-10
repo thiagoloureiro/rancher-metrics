@@ -41,7 +41,7 @@ export default function(plugin: IPlugin): void {
 
   plugin.addTableColumn(
     TableColumnLocation.RESOURCE,
-    { resource: PVC_RESOURCE },
+    { resource: [PVC_RESOURCE] },
     {
       name:      'pvc-used',
       label:     'Used',
