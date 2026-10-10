@@ -15,6 +15,20 @@ export default function(plugin: IPlugin): void {
   plugin.addRoutes(extensionRouting);
 
   plugin.addTab(
+    TabLocation.OTHER,
+    {
+      product: ['explorer'],
+      path:    [{ urlPath: '/explorer', endsWith: true }],
+    },
+    {
+      name:      'alerthawk-nodes',
+      label:     'Node metrics',
+      weight:    3,
+      component: () => import('./components/ClusterNodeMetrics.vue'),
+    }
+  );
+
+  plugin.addTab(
     TabLocation.RESOURCE_DETAIL,
     { resource: WORKLOAD_RESOURCES },
     {
