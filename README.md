@@ -46,7 +46,7 @@ A connection saved by an older version of the extension stays in that browser un
 3. Add a repository with this Helm index URL:
 
    ```text
-   https://thiagoloureiro.github.io/rancher-metrics/
+   https://thiagoloureiro.github.io/rancher-security-chart/
    ```
 
 4. Open the **Available** tab and install **Cluster Metrics**.
