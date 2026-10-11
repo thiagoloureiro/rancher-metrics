@@ -52,6 +52,24 @@ export default defineComponent({
       return useConnection(this.clusterId).clusterName;
     },
 
+    settingsPending(): boolean {
+      if (this.configured) {
+        return false;
+      }
+
+      const status = useConnection(this.clusterId).status;
+
+      return status === 'idle' || status === 'loading';
+    },
+
+    settingsError(): string {
+      if (this.configured) {
+        return '';
+      }
+
+      return useConnection(this.clusterId).error;
+    },
+
     settingsTo(): { name: string; params: { cluster: string } } {
       return {
         name:   'c-cluster-explorer-metrics-settings',
@@ -124,12 +142,22 @@ export default defineComponent({
     </header>
 
     <section
-      v-if="!configured"
+      v-if="settingsPending"
+      class="metrics-empty"
+    >
+      <p>Loading settings…</p>
+    </section>
+
+    <section
+      v-else-if="!configured"
       class="metrics-empty"
     >
       <h2>Connect AlertHawk</h2>
-      <p>
-        Add the AlertHawk URL and an API key to load metrics for this cluster.
+      <p v-if="settingsError">
+        {{ settingsError }}
+      </p>
+      <p v-else>
+        Add the AlertHawk URL and an API key in Settings. Everyone on this cluster shares that connection.
       </p>
       <router-link
         class="metrics-button"

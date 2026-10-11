@@ -13,7 +13,7 @@ After the extension is installed, open a cluster and use **Cluster Explorer → 
 - **Nodes** — CPU, memory, readiness, and pressure
 - **Applications** — Deployments, StatefulSets, DaemonSets, and Pods, with pod samples rolled up to the owning workload
 - **Volumes** — PVC used, available, and capacity
-- **Settings** — AlertHawk URL, API key, and cluster name for this Rancher cluster
+- **Settings** — AlertHawk URL, API key, and cluster name, stored once for the cluster
 
 The pages follow the namespace filter already selected in Explorer. Node metrics stay cluster-wide.
 
@@ -31,7 +31,13 @@ The browser calls AlertHawk directly, so the API must allow the Rancher origin. 
 CORS_ORIGINS=https://rancher.example.com
 ```
 
-In the extension settings, set the AlertHawk URL to the server origin, for example `https://metrics.example.com`. Requests are sent to `/metrics/api/metrics/...`. The cluster name must match the name the collector writes. **Test connection** loads the names AlertHawk already has. **Save** stores the URL and key in this browser for the current Rancher cluster.
+In the extension settings, set the AlertHawk URL to the server origin, for example `https://metrics.example.com`. Requests are sent to `/metrics/api/metrics/...`. The cluster name must match the name the collector writes. **Test connection** loads the names AlertHawk already has.
+
+**Save** writes the URL, API key, and cluster name to the `rancher-metrics` secret in the `alerthawk` namespace on the cluster you are viewing. Save creates that namespace if it is missing. Everyone who can read the secret then uses the same connection, so the cluster only needs to be configured once. The time range on each metrics page stays in the browser.
+
+The user who saves needs permission to create or update that secret. Everyone who opens Metrics needs permission to get it. The extension runs in the browser, so anyone who can read the secret can also see the API key.
+
+A connection saved by an older version of the extension stays in that browser until you open Settings and save it into the cluster.
 
 ## Install the extension
 

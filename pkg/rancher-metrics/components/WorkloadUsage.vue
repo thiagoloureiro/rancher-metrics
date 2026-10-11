@@ -3,7 +3,7 @@ import { defineComponent, type PropType } from 'vue';
 import UsageChart from './UsageChart.vue';
 import UsageMeter from './UsageMeter.vue';
 import { loadApplicationUsage } from '../services/application-usage';
-import { isConfigured, setMinutes, useConnection } from '../services/connection-settings';
+import { isConfigured, loadConnection, setMinutes, useConnection } from '../services/connection-settings';
 import {
   applicationForWorkload,
   canonicalKind,
@@ -56,6 +56,24 @@ export default defineComponent({
 
     configured(): boolean {
       return isConfigured(useConnection(this.clusterId));
+    },
+
+    pending(): boolean {
+      if (this.configured || !this.clusterId || !this.identity.kind) {
+        return false;
+      }
+
+      const status = useConnection(this.clusterId).status;
+
+      return status === 'idle' || status === 'loading';
+    },
+
+    settingsError(): string {
+      if (this.configured) {
+        return '';
+      }
+
+      return useConnection(this.clusterId).error;
     },
 
     minutes(): number {
@@ -133,7 +151,22 @@ export default defineComponent({
       const clusterId = this.clusterId;
       const identity = this.identity;
 
-      if (!clusterId || !this.configured || !identity.kind || !identity.name) {
+      if (!clusterId || !identity.kind || !identity.name) {
+        this.rows = [];
+        this.error = '';
+        this.loading = false;
+        this.refreshing = false;
+
+        return;
+      }
+
+      await loadConnection(clusterId, this.store?.dispatch?.bind(this.store));
+
+      if (this.clusterId !== clusterId || this.identity.name !== identity.name) {
+        return;
+      }
+
+      if (!this.configured) {
         this.rows = [];
         this.error = '';
         this.loading = false;
@@ -174,11 +207,21 @@ export default defineComponent({
 <template>
   <div class="metrics-workload">
     <section
-      v-if="!configured"
+      v-if="pending"
       class="metrics-empty"
     >
-      <p>
-        Add the AlertHawk URL and an API key to show usage for this workload.
+      <p>Loading settings…</p>
+    </section>
+
+    <section
+      v-else-if="!configured"
+      class="metrics-empty"
+    >
+      <p v-if="settingsError">
+        {{ settingsError }}
+      </p>
+      <p v-else>
+        Add the AlertHawk URL and an API key in Settings. Everyone on this cluster shares that connection.
       </p>
       <router-link
         class="metrics-button"

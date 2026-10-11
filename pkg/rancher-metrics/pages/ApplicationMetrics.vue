@@ -3,7 +3,7 @@ import { defineComponent } from 'vue';
 import MetricsFrame from '../components/MetricsFrame.vue';
 import UsageChart from '../components/UsageChart.vue';
 import UsageMeter from '../components/UsageMeter.vue';
-import { isConfigured, useConnection, type MetricsConnection } from '../services/connection-settings';
+import { isConfigured, loadConnection, useConnection, type MetricsConnection } from '../services/connection-settings';
 import { fetchPodMetrics } from '../services/metrics-client';
 import {
   formatCpuPair,
@@ -175,21 +175,27 @@ export default defineComponent({
     stateTone,
 
     async load() {
+      const requestId = ++this.requestId;
+      const clusterId = this.clusterId;
+
+      this.error = '';
+      this.refreshing = this.rows.length > 0;
+      this.loading = this.rows.length === 0;
+      await loadConnection(clusterId, this.store?.dispatch?.bind(this.store));
+
+      if (requestId !== this.requestId || this.clusterId !== clusterId) {
+        return;
+      }
+
       if (!this.configured) {
         this.rows = [];
-        this.error = '';
         this.loading = false;
         this.refreshing = false;
 
         return;
       }
 
-      const requestId = ++this.requestId;
       const namespace = this.namespaces && this.namespaces.length === 1 ? this.namespaces[0] : undefined;
-
-      this.error = '';
-      this.refreshing = this.rows.length > 0;
-      this.loading = this.rows.length === 0;
 
       try {
         const samples = await fetchPodMetrics(this.connection, namespace);

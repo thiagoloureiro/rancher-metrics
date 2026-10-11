@@ -2,19 +2,21 @@
 import { defineComponent } from 'vue';
 import {
   isConfigured,
+  loadConnection,
   saveConnection,
   useConnection,
-  type MetricsConnection,
+  type MetricsConnectionInput,
 } from '../services/connection-settings';
 import { fetchClusterNames } from '../services/metrics-client';
 import { API_KEY_HEADER, validateBaseUrl } from '../services/metrics';
+import { SETTINGS_NAMESPACE, SETTINGS_SECRET } from '../services/secret-settings';
 import {
   clusterDisplayName,
   clusterIdFrom,
   type DashboardStore,
 } from '../services/rancher-context';
 
-function blank(): MetricsConnection {
+function blank(): MetricsConnectionInput {
   return {
     baseUrl:     '',
     apiKey:      '',
@@ -28,14 +30,18 @@ export default defineComponent({
 
   data() {
     return {
-      form:         blank(),
-      clusters:     [] as string[],
-      testing:      false,
-      testMessage:  '',
-      testOk:       false,
-      saved:        false,
-      showKey:      false,
-      headerName:   API_KEY_HEADER,
+      form:            blank(),
+      clusters:        [] as string[],
+      testing:         false,
+      testMessage:     '',
+      testOk:          false,
+      saved:           false,
+      saving:          false,
+      loadingSettings: false,
+      showKey:         false,
+      headerName:      API_KEY_HEADER,
+      secretName:      SETTINGS_SECRET,
+      secretNamespace: SETTINGS_NAMESPACE,
     };
   },
 
@@ -58,6 +64,14 @@ export default defineComponent({
       return isConfigured(useConnection(this.clusterId));
     },
 
+    origin(): string {
+      return useConnection(this.clusterId).origin;
+    },
+
+    settingsError(): string {
+      return useConnection(this.clusterId).error;
+    },
+
     nodesTo(): { name: string; params: { cluster: string } } {
       return {
         name:   'c-cluster-explorer-node-metrics',
@@ -69,15 +83,34 @@ export default defineComponent({
   watch: {
     clusterId: {
       immediate: true,
-      handler() {
+      handler(next: string, previous?: string) {
+        if (previous && next !== previous) {
+          this.form = blank();
+          this.clusters = [];
+          this.showKey = false;
+        }
+
         this.loadForm();
       },
     },
   },
 
   methods: {
-    loadForm() {
-      const saved = useConnection(this.clusterId);
+    async loadForm() {
+      const clusterId = this.clusterId;
+
+      this.saved = false;
+      this.testMessage = '';
+      this.testOk = false;
+      this.loadingSettings = true;
+
+      await loadConnection(clusterId, this.store?.dispatch?.bind(this.store), true);
+
+      if (this.clusterId !== clusterId) {
+        return;
+      }
+
+      const saved = useConnection(clusterId);
 
       this.form = {
         baseUrl:     saved.baseUrl,
@@ -85,9 +118,11 @@ export default defineComponent({
         clusterName: saved.clusterName,
         minutes:     saved.minutes,
       };
-      this.saved = false;
-      this.testMessage = '';
-      this.testOk = false;
+      this.loadingSettings = false;
+
+      if (saved.error && saved.origin !== 'browser') {
+        this.testMessage = saved.error;
+      }
     },
 
     useDisplayName() {
@@ -100,7 +135,7 @@ export default defineComponent({
       this.saved = false;
     },
 
-    save() {
+    async save() {
       const urlError = validateBaseUrl(this.form.baseUrl);
 
       this.saved = false;
@@ -118,10 +153,25 @@ export default defineComponent({
         return;
       }
 
-      saveConnection(this.clusterId, this.form);
-      this.form.baseUrl = useConnection(this.clusterId).baseUrl;
-      this.saved = true;
-      this.testMessage = '';
+      if (!this.store?.dispatch) {
+        this.testMessage = 'Cluster API is not available.';
+
+        return;
+      }
+
+      this.saving = true;
+
+      try {
+        await saveConnection(this.clusterId, this.form, this.store.dispatch.bind(this.store));
+        this.form.baseUrl = useConnection(this.clusterId).baseUrl;
+        this.saved = true;
+        this.testMessage = '';
+      } catch (error) {
+        this.saved = false;
+        this.testMessage = error instanceof Error ? error.message : 'Could not save settings.';
+      } finally {
+        this.saving = false;
+      }
     },
 
     async testConnection() {
@@ -154,8 +204,8 @@ export default defineComponent({
         this.clusters = names;
         this.testOk = true;
         this.testMessage = names.length
-          ? `Connected. ${ names.length } cluster ${ names.length === 1 ? 'name' : 'names' } found. Save to keep this key in the browser.`
-          : 'Connected. No cluster names are stored yet. Save to keep this key in the browser.';
+          ? `Connected. ${ names.length } cluster ${ names.length === 1 ? 'name' : 'names' } found.`
+          : 'Connected. No cluster names are stored yet.';
       } catch (error) {
         this.testOk = false;
         this.testMessage = error instanceof Error ? error.message : 'Could not connect.';
@@ -177,7 +227,7 @@ export default defineComponent({
         <h1>Settings</h1>
         <p>
           AlertHawk URL, API key, and the cluster name used to filter metrics.
-          Values are stored in this browser for Rancher cluster {{ clusterId || 'this cluster' }}.
+          Save stores them in the <code>{{ secretName }}</code> secret in the <code>{{ secretNamespace }}</code> namespace, so everyone using this cluster shares the same connection.
         </p>
       </div>
       <router-link
@@ -271,9 +321,10 @@ export default defineComponent({
         <button
           type="button"
           class="metrics-button"
+          :disabled="saving || loadingSettings"
           @click="save"
         >
-          Save
+          {{ saving ? 'Saving…' : 'Save' }}
         </button>
         <button
           type="button"
@@ -290,10 +341,22 @@ export default defineComponent({
           Saved for this cluster.
         </span>
         <span
+          v-else-if="loadingSettings"
+          class="metrics-muted"
+        >
+          Loading saved settings…
+        </span>
+        <span
+          v-else-if="origin === 'browser'"
+          class="metrics-muted"
+        >
+          {{ settingsError || 'These values are only in this browser. Save to share them with everyone on this cluster.' }}
+        </span>
+        <span
           v-else-if="connected"
           class="metrics-muted"
         >
-          A key is already saved.
+          Saved for everyone on this cluster.
         </span>
       </div>
       <p

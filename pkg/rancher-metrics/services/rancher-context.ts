@@ -1,5 +1,5 @@
 export interface DashboardStore {
-  dispatch(action: string, payload: { type: string }): Promise<unknown>;
+  dispatch(action: string, payload?: unknown): Promise<unknown>;
   state: { activeNamespaceCache?: Record<string, boolean> };
   getters: { isAllNamespaces?: boolean } & Record<string, unknown>;
 }
