@@ -38,6 +38,6 @@
   },
   "exclude": [
     "node_modules",
-    "pkg/rancher-metrics/services/metrics.test.ts"
+    "pkg/rancher-metrics/**/*.test.ts"
   ]
 }

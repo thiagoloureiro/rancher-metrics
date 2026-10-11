@@ -1,4 +1,4 @@
-import type { MetricsConnection } from './connection-settings';
+import type { MetricsConnectionInput } from './connection-settings';
 import {
   API_KEY_HEADER,
   UNREACHABLE,
@@ -15,24 +15,24 @@ import {
   type VolumeSample,
 } from './metrics';
 
-export async function fetchNodeMetrics(connection: MetricsConnection): Promise<NodeSample[]> {
+export async function fetchNodeMetrics(connection: MetricsConnectionInput): Promise<NodeSample[]> {
   return request(connection, 'node', {}, parseNodeSamples);
 }
 
-export async function fetchPodMetrics(connection: MetricsConnection, namespace?: string): Promise<PodSample[]> {
+export async function fetchPodMetrics(connection: MetricsConnectionInput, namespace?: string): Promise<PodSample[]> {
   return request(connection, 'namespace', { namespace }, parsePodSamples);
 }
 
-export async function fetchVolumeMetrics(connection: MetricsConnection, namespace?: string): Promise<VolumeSample[]> {
+export async function fetchVolumeMetrics(connection: MetricsConnectionInput, namespace?: string): Promise<VolumeSample[]> {
   return request(connection, 'pvc', { namespace }, parseVolumeSamples);
 }
 
-export async function fetchClusterNames(connection: MetricsConnection): Promise<string[]> {
+export async function fetchClusterNames(connection: MetricsConnectionInput): Promise<string[]> {
   return request(connection, 'clusters', {}, parseClusterNames);
 }
 
 async function request<T>(
-  connection: MetricsConnection,
+  connection: MetricsConnectionInput,
   path: string,
   extra: Record<string, string | undefined>,
   parse: (payload: unknown) => T,

@@ -46,6 +46,6 @@
   ],
   "exclude": [
     "../../node_modules",
-    "services/metrics.test.ts"
+    "**/*.test.ts"
   ]
 }
