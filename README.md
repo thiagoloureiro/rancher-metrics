@@ -1,8 +1,9 @@
 # Cluster Metrics for Rancher
 
 [![version](https://img.shields.io/github/package-json/v/thiagoloureiro/rancher-metrics?filename=pkg%2Francher-metrics%2Fpackage.json&label=version)](https://github.com/thiagoloureiro/rancher-metrics/releases)
-[![charts](https://img.shields.io/github/actions/workflow/status/thiagoloureiro/rancher-metrics/build-extension-charts.yml?event=release&label=charts)](https://github.com/thiagoloureiro/rancher-metrics/actions/workflows/build-extension-charts.yml)
-[![catalog](https://img.shields.io/github/actions/workflow/status/thiagoloureiro/rancher-metrics/build-extension-catalog.yml?event=release&label=catalog)](https://github.com/thiagoloureiro/rancher-metrics/actions/workflows/build-extension-catalog.yml)
+[![charts](https://img.shields.io/github/actions/workflow/status/thiagoloureiro/rancher-security-chart/build-extension-charts.yml?event=release&label=charts)](https://thiagoloureiro.github.io/rancher-security-chart/)
+[![catalog](https://img.shields.io/github/actions/workflow/status/thiagoloureiro/rancher-security-chart/build-extension-catalog.yml?event=release&label=catalog)](https://github.com/thiagoloureiro/rancher-security-chart/actions/workflows/build-extension-catalog.yml)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff)](https://kubernetes.io/)
 
 Rancher UI extension that shows [AlertHawk](https://github.com/thiagoloureiro/AlertHawk) node, application, and volume metrics inside Cluster Explorer. It targets Rancher 2.10 or newer.
 
