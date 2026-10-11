@@ -1,0 +1,9 @@
+plugin/package.json
+plugin/rancher-metrics-0.1.9.umd.min.235.js
+plugin/rancher-metrics-0.1.9.umd.min.235.js.map
+plugin/rancher-metrics-0.1.9.umd.min.66.js
+plugin/rancher-metrics-0.1.9.umd.min.66.js.map
+plugin/rancher-metrics-0.1.9.umd.min.formatters.js
+plugin/rancher-metrics-0.1.9.umd.min.formatters.js.map
+plugin/rancher-metrics-0.1.9.umd.min.js
+plugin/rancher-metrics-0.1.9.umd.min.js.map
