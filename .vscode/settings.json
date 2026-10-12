@@ -16,6 +16,6 @@
     "jsconfig.json": true,
     "yarn-error.log": true,
     "pkg/**/.shell": true,
-    "pkg/**/node_modules": true,
+    "pkg/**/node_modules": true
   }
 }
