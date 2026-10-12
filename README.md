@@ -4,6 +4,7 @@
 [![charts](https://img.shields.io/github/actions/workflow/status/thiagoloureiro/rancher-security-chart/build-extension-charts.yml?event=release&label=charts)](https://thiagoloureiro.github.io/rancher-security-chart/)
 [![catalog](https://img.shields.io/github/actions/workflow/status/thiagoloureiro/rancher-security-chart/build-extension-catalog.yml?event=release&label=catalog)](https://github.com/thiagoloureiro/rancher-security-chart/actions/workflows/build-extension-catalog.yml)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff)](https://kubernetes.io/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6036081ba0d14932a13e388e2294ffaf)](https://app.codacy.com/gh/thiagoloureiro/rancher-metrics/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 Rancher UI extension that shows [AlertHawk](https://github.com/thiagoloureiro/AlertHawk) node, application, and volume metrics inside Cluster Explorer. It targets Rancher 2.10 or newer.
 
