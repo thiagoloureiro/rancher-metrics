@@ -1,12 +1,12 @@
 {
   "name": "rancher-metrics",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": false,
   "engines": {
     "node": ">=24"
   },
   "dependencies": {
-    "@rancher/shell": "^3.0.13"
+    "@rancher/shell": "^3.0.14"
   },
   "resolutions": {
     "@types/node": "~25.3.0",
