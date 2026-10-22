@@ -6,9 +6,12 @@ import UsageMeter from '../components/UsageMeter.vue';
 import { isConfigured, loadConnection, useConnection, type MetricsConnection } from '../services/connection-settings';
 import { fetchNodeMetrics } from '../services/metrics-client';
 import {
+  FRESH_NODE_LOOKBACK_MINUTES,
   FRESH_NODE_MS,
+  RAW_METRICS_MINUTES,
   formatTimestamp,
   latestNodeRows,
+  nodeRowsForRange,
   nodeStatus,
   showsClusterColumn,
   updatedWithin,
@@ -25,15 +28,16 @@ export default defineComponent({
 
   data() {
     return {
-      rows:        [] as NodeRow[],
-      error:       '',
-      loading:     false,
-      refreshing:  false,
-      requestId:   0,
-      query:       '',
-      sortKey:     'cpu',
-      sortDir:     'desc' as SortDir,
-      selectedKey: '',
+      rows:          [] as NodeRow[],
+      rangeHasNodes: false,
+      error:         '',
+      loading:       false,
+      refreshing:    false,
+      requestId:     0,
+      query:         '',
+      sortKey:       'cpu',
+      sortDir:       'desc' as SortDir,
+      selectedKey:   '',
     };
   },
 
@@ -82,7 +86,7 @@ export default defineComponent({
     },
 
     emptyMessage(): string {
-      if (!this.query.trim() && this.rows.length && !this.visible.length) {
+      if (!this.query.trim() && this.rangeHasNodes && !this.visible.length) {
         return 'No nodes updated in the last 5 minutes.';
       }
 
@@ -131,6 +135,7 @@ export default defineComponent({
 
       if (!this.configured) {
         this.rows = [];
+        this.rangeHasNodes = false;
         this.loading = false;
         this.refreshing = false;
 
@@ -138,13 +143,22 @@ export default defineComponent({
       }
 
       try {
-        const samples = await fetchNodeMetrics(this.connection);
+        const connection = this.connection;
+        const historyPromise = fetchNodeMetrics(connection);
+        const recentPromise = connection.minutes > RAW_METRICS_MINUTES
+          ? fetchNodeMetrics({ ...connection, minutes: FRESH_NODE_LOOKBACK_MINUTES })
+          : historyPromise;
+        const [historySamples, recentSamples] = await Promise.all([historyPromise, recentPromise]);
 
         if (requestId !== this.requestId) {
           return;
         }
 
-        this.rows = latestNodeRows(samples);
+        const history = latestNodeRows(historySamples);
+        const recent = latestNodeRows(recentSamples);
+
+        this.rangeHasNodes = history.length > 0;
+        this.rows = nodeRowsForRange(history, recent);
       } catch (error) {
         if (requestId !== this.requestId) {
           return;

@@ -7,7 +7,9 @@ import {
   formatCpu,
   FRESH_NODE_MS,
   latestNodeRows,
+  nodeRowsForRange,
   updatedWithin,
+  type NodeRow,
   metricsErrorMessage,
   metricsUrl,
   normalizeMinutes,
@@ -73,6 +75,32 @@ function pod(overrides: Partial<PodSample>): PodSample {
   };
 }
 
+function nodeRow(overrides: Partial<NodeRow>): NodeRow {
+  return {
+    name:                 'node-a',
+    clusterName:          'prod',
+    cpuUsageCores:        1,
+    cpuCapacityCores:     4,
+    memoryUsageBytes:     100,
+    memoryCapacityBytes:  1000,
+    ready:                true,
+    memoryPressure:       false,
+    diskPressure:         false,
+    pidPressure:          false,
+    kubernetesVersion:    'v1.31.0',
+    cloudProvider:        'azure',
+    architecture:         'amd64',
+    operatingSystem:      'linux',
+    region:               'eastus',
+    instanceType:         'Standard_D4s_v5',
+    environment:          'prod',
+    updatedAt:            '2026-10-10T12:04:30.000Z',
+    cpuSeries:            [],
+    memorySeries:         [],
+    ...overrides,
+  };
+}
+
 function volume(overrides: Partial<VolumeSample>): VolumeSample {
   return {
     timestamp:       '2026-10-10T12:02:00.000Z',
@@ -121,6 +149,29 @@ assert.equal(updatedWithin('2026-10-10T12:05:01.000Z', FRESH_NODE_MS, freshAt), 
 assert.equal(updatedWithin('2026-10-10T12:00:00.000Z', FRESH_NODE_MS, freshAt), false);
 assert.equal(updatedWithin('2026-10-10T11:59:59.000Z', FRESH_NODE_MS, freshAt), false);
 assert.equal(updatedWithin('not-a-date', FRESH_NODE_MS, freshAt), false);
+
+const bucketed = nodeRow({
+  name:      'node-a',
+  updatedAt: '2026-10-10T11:50:00.000Z',
+  cpuSeries: [{ time: 1, value: 9 }],
+});
+const live = nodeRow({
+  name:          'node-a',
+  updatedAt:     '2026-10-10T12:04:30.000Z',
+  cpuUsageCores: 1.25,
+  cpuSeries:     [{ time: 2, value: 1 }],
+});
+const gone = nodeRow({
+  name:      'node-b',
+  updatedAt: '2026-10-10T11:40:00.000Z',
+});
+const listed = nodeRowsForRange([bucketed, gone], [live, gone], freshAt);
+
+assert.equal(listed.length, 1);
+assert.equal(listed[0].name, 'node-a');
+assert.equal(listed[0].cpuUsageCores, 1.25);
+assert.equal(listed[0].updatedAt, '2026-10-10T12:04:30.000Z');
+assert.equal(listed[0].cpuSeries[0].value, 9);
 
 assert.equal(nodes.length, 1);
 assert.equal(nodes[0].cpuUsageCores, 1.5);

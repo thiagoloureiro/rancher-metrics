@@ -2,7 +2,7 @@
   "name": "rancher-metrics",
   "description": "Shows AlertHawk node, application, and volume metrics in Rancher",
   "icon": "https://raw.githubusercontent.com/thiagoloureiro/rancher-metrics/main/pkg/rancher-metrics/icon.png",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "private": false,
   "rancher": {
     "annotations": {

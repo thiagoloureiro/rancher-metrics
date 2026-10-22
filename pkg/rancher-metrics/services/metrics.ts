@@ -12,6 +12,13 @@ export const TIME_RANGES: { minutes: number; label: string }[] = [
 // Drop nodes last seen 5 minutes ago or earlier. Those machines are shutdown or replaced.
 export const FRESH_NODE_MS = 5 * 60 * 1000;
 
+// AlertHawk returns raw timestamps only through 6 hours. A 24-hour query is
+// grouped into 5-minute buckets, and a 7-day query into 15-minute buckets.
+// The bucket stamp is the start of that interval, so a live node can look
+// more than 5 minutes old. Freshness has to come from a raw window.
+export const RAW_METRICS_MINUTES = 360;
+export const FRESH_NODE_LOOKBACK_MINUTES = 15;
+
 const ALLOWED_MINUTES = new Set(TIME_RANGES.map((range) => range.minutes));
 const TRAILING_HASH = /-([a-z0-9]{5,16})$/;
 const BUCKET_MS = 60_000;
@@ -554,6 +561,26 @@ export function latestNodeRows(samples: NodeSample[]): NodeRow[] {
   }).sort((left, right) => left.name.localeCompare(right.name));
 }
 
+export function nodeRowsForRange(history: NodeRow[], recent: NodeRow[], now = Date.now()): NodeRow[] {
+  const series = new Map(history.map((row) => [nodeKey(row), row]));
+
+  return recent
+    .filter((row) => updatedWithin(row.updatedAt, FRESH_NODE_MS, now))
+    .map((row) => {
+      const past = series.get(nodeKey(row));
+
+      if (!past) {
+        return row;
+      }
+
+      return {
+        ...row,
+        cpuSeries:    past.cpuSeries,
+        memorySeries: past.memorySeries,
+      };
+    });
+}
+
 export function rollupApplications(samples: PodSample[], resources: WorkloadResource[]): AppRow[] {
   const index = indexWorkloads(resources);
   const latestContainers = latestBy(
@@ -892,6 +919,10 @@ function latestBy<T>(items: T[], keyFn: (item: T) => string, timeFn: (item: T) =
   });
 
   return [...best.values()];
+}
+
+function nodeKey(row: Pick<NodeRow, 'clusterName' | 'name'>): string {
+  return `${ row.clusterName }/${ row.name }`;
 }
 
 function newest<T>(items: T[], timeFn: (item: T) => number): T {
