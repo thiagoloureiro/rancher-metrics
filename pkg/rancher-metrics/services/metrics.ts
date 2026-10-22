@@ -9,6 +9,9 @@ export const TIME_RANGES: { minutes: number; label: string }[] = [
   { minutes: 10080, label: '7 days' },
 ];
 
+// Drop nodes last seen 5 minutes ago or earlier. Those machines are shutdown or replaced.
+export const FRESH_NODE_MS = 5 * 60 * 1000;
+
 const ALLOWED_MINUTES = new Set(TIME_RANGES.map((range) => range.minutes));
 const TRAILING_HASH = /-([a-z0-9]{5,16})$/;
 const BUCKET_MS = 60_000;
@@ -324,6 +327,16 @@ export function formatPercent(percent: number | null): string {
   }
 
   return `${ Math.round(percent) }%`;
+}
+
+export function updatedWithin(updatedAt: string, maxAgeMs: number, now = Date.now()): boolean {
+  const updated = Date.parse(updatedAt);
+
+  if (Number.isNaN(updated)) {
+    return false;
+  }
+
+  return now - updated < maxAgeMs;
 }
 
 export function formatTimestamp(iso: string, now = Date.now()): string {

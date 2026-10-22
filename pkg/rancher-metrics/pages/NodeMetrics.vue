@@ -6,10 +6,12 @@ import UsageMeter from '../components/UsageMeter.vue';
 import { isConfigured, loadConnection, useConnection, type MetricsConnection } from '../services/connection-settings';
 import { fetchNodeMetrics } from '../services/metrics-client';
 import {
+  FRESH_NODE_MS,
   formatTimestamp,
   latestNodeRows,
   nodeStatus,
   showsClusterColumn,
+  updatedWithin,
   type NodeRow,
 } from '../services/metrics';
 import { clusterIdFrom, type DashboardStore } from '../services/rancher-context';
@@ -55,12 +57,17 @@ export default defineComponent({
     },
 
     showCluster(): boolean {
-      return showsClusterColumn(this.rows.map((row) => row.clusterName));
+      return showsClusterColumn(this.visible.map((row) => row.clusterName));
     },
 
     visible(): NodeRow[] {
       const query = this.query.trim().toLowerCase();
+      const now = Date.now();
       const rows = this.rows.filter((row) => {
+        if (!updatedWithin(row.updatedAt, FRESH_NODE_MS, now)) {
+          return false;
+        }
+
         if (!query) {
           return true;
         }
@@ -72,6 +79,14 @@ export default defineComponent({
       });
 
       return rows.sort((left, right) => this.compare(left, right));
+    },
+
+    emptyMessage(): string {
+      if (!this.query.trim() && this.rows.length && !this.visible.length) {
+        return 'No nodes updated in the last 5 minutes.';
+      }
+
+      return 'No node metrics in this time range.';
     },
 
     selected(): NodeRow | null {
@@ -243,7 +258,7 @@ export default defineComponent({
       v-if="!visible.length"
       class="metrics-empty"
     >
-      No node metrics in this time range.
+      {{ emptyMessage }}
     </p>
 
     <table

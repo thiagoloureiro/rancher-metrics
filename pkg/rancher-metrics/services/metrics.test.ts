@@ -5,7 +5,9 @@ import {
   deploymentNameFromReplicaSet,
   formatBytes,
   formatCpu,
+  FRESH_NODE_MS,
   latestNodeRows,
+  updatedWithin,
   metricsErrorMessage,
   metricsUrl,
   normalizeMinutes,
@@ -111,6 +113,14 @@ const nodes = latestNodeRows(parseNodeSamples([
     instanceType:        'Standard_D4s_v5',
   },
 ]));
+
+const freshAt = Date.parse('2026-10-10T12:05:00.000Z');
+
+assert.equal(updatedWithin('2026-10-10T12:04:59.000Z', FRESH_NODE_MS, freshAt), true);
+assert.equal(updatedWithin('2026-10-10T12:05:01.000Z', FRESH_NODE_MS, freshAt), true);
+assert.equal(updatedWithin('2026-10-10T12:00:00.000Z', FRESH_NODE_MS, freshAt), false);
+assert.equal(updatedWithin('2026-10-10T11:59:59.000Z', FRESH_NODE_MS, freshAt), false);
+assert.equal(updatedWithin('not-a-date', FRESH_NODE_MS, freshAt), false);
 
 assert.equal(nodes.length, 1);
 assert.equal(nodes[0].cpuUsageCores, 1.5);
